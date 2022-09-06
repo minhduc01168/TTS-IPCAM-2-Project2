@@ -8,8 +8,8 @@ prev_frame_time = 0
 new_frame_time = 0
 
 while cap.isOpened():
+	#reading the image  
 	_,image = cap.read()
-#reading the image  
 
 	edged = cv2.Canny(image, 10, 250) 
 	

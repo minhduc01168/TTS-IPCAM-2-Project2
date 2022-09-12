@@ -36,10 +36,10 @@ class NeuralNetwork(nn.Module):
 def predict(frame):
 
     CSV_path = "bom.csv"
-    modelPath = './pcb_components4.pth'
-    confidenceThreshold = 0.52
+    model_path = './pcb_components4.pth'
+    confidence_threshold = 0.95
 
-    wanted_comps = ["bosa", "cap", "jack_ng", "m_cap", "m_jack", "m_nut", "m_rst", "m_wps", "nut_ng", "rst",  "wps"]
+    wanted_comps = ["bosa", "tu_dien", "jack_nguon", "thieu_tu_dien", "thieu_jack_nguon", "thieu_nut_nguon", "thieu_reset", "thieu_wps", "nut_nguon", "reset",  "wps"]
     labels_map = {
         0: wanted_comps[0],
         1: wanted_comps[1],
@@ -66,7 +66,7 @@ def predict(frame):
     with torch.no_grad():
         # Loading model
         model = NeuralNetwork().to(device)
-        model.load_state_dict(torch.load(modelPath))
+        model.load_state_dict(torch.load(model_path))
         # Only for prediction mode
         model.eval()
     
@@ -103,7 +103,7 @@ def predict(frame):
             # Getting prediction and confidence score
             probs = torch.nn.functional.softmax(prediction, dim=-1)
             conf, classes = torch.max(probs, -1)
-            if conf < confidenceThreshold: continue
+            if conf < confidence_threshold: continue
 
             # another way
             #predicted_class = np.argmax(prediction.cpu())
@@ -125,7 +125,7 @@ def predict(frame):
             else:
                 cv2.rectangle(show_pcb_image, (point1_x, point1_y), (point2_x, point2_y), green, 2)
 
-            cv2.putText(show_pcb_image, str(labels_map[classes.item()]), (point1_x,point2_y+20), cv2.FONT_HERSHEY_DUPLEX, 0.5, [0,255,255], 1)
+            cv2.putText(show_pcb_image, str(labels_map[classes.item()]) + " "+ str(round(conf.item(), 2)), (point1_x,point2_y+20), cv2.FONT_HERSHEY_DUPLEX, 0.5, [0,255,255], 1)
 
         #cv2.imshow("result", show_pcb_image)
         # print(f"number of valid Components: {validComponentsCounter}")
